@@ -56,6 +56,8 @@ go
 
 CREATE TABLE CLIENTE
 ( 
+	nombreUsuario		 varchar (20) NOT NULL,
+	contraseña			 nvarchar(100) NOT NULL,
 	curp                 char(18)  NOT NULL ,
 	nom                  varchar(50)  NOT NULL ,
 	apPaterno            varchar(50)  NOT NULL ,
@@ -67,9 +69,12 @@ go
 
 
 ALTER TABLE CLIENTE
-	ADD CONSTRAINT XPKCLIENTE PRIMARY KEY  CLUSTERED (curp ASC),
-	constraint uq_curpCliente unique (curp),
-	constraint ch_curp check (len(curp)=18)
+	ADD CONSTRAINT XPKCLIENTE PRIMARY KEY  CLUSTERED (nombreUsuario ASC),
+	CONSTRAINT uq_curpCliente UNIQUE (curp),
+	CONSTRAINT ch_curp CHECK (len(curp)=18),
+	CONSTRAINT uq_nombreUduario UNIQUE (nombreUsuario),
+	CONSTRAINT ch_nombreUsuario  CHECK ((len(nombreUsuario)) between 6 and 20),
+	CONSTRAINT ch_contraseña  CHECK ((len(contraseña)) between 8 and 20)
 go
 
 
@@ -85,7 +90,7 @@ CREATE TABLE PASE
 	numero_D             int  NOT NULL ,
 	codigoAvion          int  NOT NULL ,
 	numReserva_D         int  NOT NULL ,
-	curp                 char(18)  NOT NULL,
+	nombreUsuario        varchar(20)  NOT NULL,
 	numPase_D			 int NULL,
 	codigoUnico_D		 int NOT NULL  
 )
@@ -100,7 +105,7 @@ go
 
 
 ALTER TABLE PASE
-	ADD CONSTRAINT XAK1PASE UNIQUE (numReserva_D  ASC,numero_D  ASC,codigoAvion  ASC,curp  ASC,numPase_D  ASC)
+	ADD CONSTRAINT XAK1PASE UNIQUE (numReserva_D  ASC,numero_D  ASC,codigoAvion  ASC,nombreUsuario  ASC,numPase_D  ASC)
 go
 
 
@@ -111,14 +116,14 @@ CREATE TABLE RESERVACION
 	fecha                date  NOT NULL ,
 	hora                 time  NOT NULL ,
 	tarjeta              varchar(20)  NOT NULL ,
-	curp                 char(18)  NOT NULL 
+	nombreUsuario        varchar(20)  NOT NULL
 )
 go
 
 
 
 ALTER TABLE RESERVACION
-	ADD CONSTRAINT XPKRESERVACION PRIMARY KEY  CLUSTERED (numReserva_D ASC,curp ASC)
+	ADD CONSTRAINT XPKRESERVACION PRIMARY KEY  CLUSTERED (numReserva_D ASC,nombreUsuario ASC)
 go
 
 
@@ -165,7 +170,7 @@ go
 
 
 ALTER TABLE PASE
-	ADD CONSTRAINT R_15 FOREIGN KEY (numReserva_D,curp) REFERENCES RESERVACION(numReserva_D,curp)
+	ADD CONSTRAINT R_15 FOREIGN KEY (numReserva_D,nombreUsuario) REFERENCES RESERVACION(numReserva_D,nombreUsuario)
 		ON DELETE NO ACTION
 		ON UPDATE NO ACTION
 go
@@ -180,7 +185,7 @@ go
 
 
 ALTER TABLE RESERVACION
-	ADD CONSTRAINT R_9 FOREIGN KEY (curp) REFERENCES CLIENTE(curp)
+	ADD CONSTRAINT R_9 FOREIGN KEY (nombreUsuario) REFERENCES CLIENTE(nombreUsuario)
 		ON DELETE NO ACTION
 		ON UPDATE NO ACTION
 go
@@ -604,12 +609,12 @@ BEGIN
     /* ERWIN_RELATION:CHECKSUM="0000f152", PARENT_OWNER="", PARENT_TABLE="CLIENTE"
     CHILD_OWNER="", CHILD_TABLE="RESERVACION"
     P2C_VERB_PHRASE="", C2P_VERB_PHRASE="", 
-    FK_CONSTRAINT="R_9", FK_COLUMNS="curp" */
+    FK_CONSTRAINT="R_9", FK_COLUMNS="nombreUsuario" */
     IF EXISTS (
       SELECT * FROM deleted,RESERVACION
       WHERE
         /*  %JoinFKPK(RESERVACION,deleted," = "," AND") */
-        RESERVACION.curp = deleted.curp
+        RESERVACION.nombreUsuario = deleted.nombreUsuario
     )
     BEGIN
       SELECT @errno  = 30001,
@@ -635,7 +640,7 @@ BEGIN
   DECLARE  @NUMROWS int,
            @nullcnt int,
            @validcnt int,
-           @inscurp char(18),
+           @insnombreUsuario char(18),
            @errno   int,
            @errmsg  varchar(255)
 
@@ -645,16 +650,16 @@ BEGIN
   /* ERWIN_RELATION:CHECKSUM="00010d69", PARENT_OWNER="", PARENT_TABLE="CLIENTE"
     CHILD_OWNER="", CHILD_TABLE="RESERVACION"
     P2C_VERB_PHRASE="", C2P_VERB_PHRASE="", 
-    FK_CONSTRAINT="R_9", FK_COLUMNS="curp" */
+    FK_CONSTRAINT="R_9", FK_COLUMNS="nombreUsuario" */
   IF
     /* %ParentPK(" OR",UPDATE) */
-    UPDATE(curp)
+    UPDATE(nombreUsuario)
   BEGIN
     IF EXISTS (
       SELECT * FROM deleted,RESERVACION
       WHERE
         /*  %JoinFKPK(RESERVACION,deleted," = "," AND") */
-        RESERVACION.curp = deleted.curp
+        RESERVACION.nombreUsuario = deleted.nombreUsuario
     )
     BEGIN
       SELECT @errno  = 30005,
@@ -712,18 +717,18 @@ BEGIN
     /* ERWIN_RELATION:CHECKSUM="00000000", PARENT_OWNER="", PARENT_TABLE="RESERVACION"
     CHILD_OWNER="", CHILD_TABLE="PASE"
     P2C_VERB_PHRASE="", C2P_VERB_PHRASE="", 
-    FK_CONSTRAINT="R_15", FK_COLUMNS="numReserva_D""curp" */
+    FK_CONSTRAINT="R_15", FK_COLUMNS="numReserva_D""nombreUsuario" */
     IF EXISTS (SELECT * FROM deleted,RESERVACION
       WHERE
         /* %JoinFKPK(deleted,RESERVACION," = "," AND") */
         deleted.numReserva_D = RESERVACION.numReserva_D AND
-        deleted.curp = RESERVACION.curp AND
+        deleted.nombreUsuario = RESERVACION.nombreUsuario AND
         NOT EXISTS (
           SELECT * FROM PASE
           WHERE
             /* %JoinFKPK(PASE,RESERVACION," = "," AND") */
             PASE.numReserva_D = RESERVACION.numReserva_D AND
-            PASE.curp = RESERVACION.curp
+            PASE.nombreUsuario = RESERVACION.nombreUsuario
         )
     )
     BEGIN
@@ -814,11 +819,11 @@ BEGIN
   /* ERWIN_RELATION:CHECKSUM="00000000", PARENT_OWNER="", PARENT_TABLE="RESERVACION"
     CHILD_OWNER="", CHILD_TABLE="PASE"
     P2C_VERB_PHRASE="", C2P_VERB_PHRASE="", 
-    FK_CONSTRAINT="R_15", FK_COLUMNS="numReserva_D""curp" */
+    FK_CONSTRAINT="R_15", FK_COLUMNS="numReserva_D""nombreUsuario" */
   IF
     /* %ChildFK(" OR",UPDATE) */
     UPDATE(numReserva_D) OR
-    UPDATE(curp)
+    UPDATE(nombreUsuario)
   BEGIN
     SELECT @nullcnt = 0
     SELECT @validcnt = count(*)
@@ -826,11 +831,11 @@ BEGIN
         WHERE
           /* %JoinFKPK(inserted,RESERVACION) */
           inserted.numReserva_D = RESERVACION.numReserva_D and
-          inserted.curp = RESERVACION.curp
+          inserted.nombreUsuario = RESERVACION.nombreUsuario
     /* %NotnullFK(inserted," IS NULL","select @nullcnt = count(*) from inserted where"," AND") */
     select @nullcnt = count(*) from inserted where
       inserted.numReserva_D IS NULL AND
-      inserted.curp IS NULL
+      inserted.nombreUsuario IS NULL
     IF @validcnt + @nullcnt != @NUMROWS
     BEGIN
       SELECT @errno  = 30007,
@@ -892,13 +897,13 @@ BEGIN
     /* ERWIN_RELATION:CHECKSUM="0002171e", PARENT_OWNER="", PARENT_TABLE="RESERVACION"
     CHILD_OWNER="", CHILD_TABLE="PASE"
     P2C_VERB_PHRASE="", C2P_VERB_PHRASE="", 
-    FK_CONSTRAINT="R_15", FK_COLUMNS="numReserva_D""curp" */
+    FK_CONSTRAINT="R_15", FK_COLUMNS="numReserva_D""nombreUsuario" */
     IF EXISTS (
       SELECT * FROM deleted,PASE
       WHERE
         /*  %JoinFKPK(PASE,deleted," = "," AND") */
         PASE.numReserva_D = deleted.numReserva_D AND
-        PASE.curp = deleted.curp
+        PASE.nombreUsuario = deleted.nombreUsuario
     )
     BEGIN
       SELECT @errno  = 30001,
@@ -911,16 +916,16 @@ BEGIN
     /* ERWIN_RELATION:CHECKSUM="00000000", PARENT_OWNER="", PARENT_TABLE="CLIENTE"
     CHILD_OWNER="", CHILD_TABLE="RESERVACION"
     P2C_VERB_PHRASE="", C2P_VERB_PHRASE="", 
-    FK_CONSTRAINT="R_9", FK_COLUMNS="curp" */
+    FK_CONSTRAINT="R_9", FK_COLUMNS="nombreUsuario" */
     IF EXISTS (SELECT * FROM deleted,CLIENTE
       WHERE
         /* %JoinFKPK(deleted,CLIENTE," = "," AND") */
-        deleted.curp = CLIENTE.curp AND
+        deleted.nombreUsuario = CLIENTE.nombreUsuario AND
         NOT EXISTS (
           SELECT * FROM RESERVACION
           WHERE
             /* %JoinFKPK(RESERVACION,CLIENTE," = "," AND") */
-            RESERVACION.curp = CLIENTE.curp
+            RESERVACION.nombreUsuario = CLIENTE.nombreUsuario
         )
     )
     BEGIN
@@ -948,7 +953,7 @@ BEGIN
            @nullcnt int,
            @validcnt int,
            @insnumReserva_D char(18), 
-           @inscurp char(18),
+           @insnombreUsuario char(18),
            @errno   int,
            @errmsg  varchar(255)
 
@@ -958,18 +963,18 @@ BEGIN
   /* ERWIN_RELATION:CHECKSUM="00024848", PARENT_OWNER="", PARENT_TABLE="RESERVACION"
     CHILD_OWNER="", CHILD_TABLE="PASE"
     P2C_VERB_PHRASE="", C2P_VERB_PHRASE="", 
-    FK_CONSTRAINT="R_15", FK_COLUMNS="numReserva_D""curp" */
+    FK_CONSTRAINT="R_15", FK_COLUMNS="numReserva_D""nombreUsuario" */
   IF
     /* %ParentPK(" OR",UPDATE) */
     UPDATE(numReserva_D) OR
-    UPDATE(curp)
+    UPDATE(nombreUsuario)
   BEGIN
     IF EXISTS (
       SELECT * FROM deleted,PASE
       WHERE
         /*  %JoinFKPK(PASE,deleted," = "," AND") */
         PASE.numReserva_D = deleted.numReserva_D AND
-        PASE.curp = deleted.curp
+        PASE.nombreUsuario = deleted.nombreUsuario
     )
     BEGIN
       SELECT @errno  = 30005,
@@ -983,17 +988,17 @@ BEGIN
   /* ERWIN_RELATION:CHECKSUM="00000000", PARENT_OWNER="", PARENT_TABLE="CLIENTE"
     CHILD_OWNER="", CHILD_TABLE="RESERVACION"
     P2C_VERB_PHRASE="", C2P_VERB_PHRASE="", 
-    FK_CONSTRAINT="R_9", FK_COLUMNS="curp" */
+    FK_CONSTRAINT="R_9", FK_COLUMNS="nombreUsuario" */
   IF
     /* %ChildFK(" OR",UPDATE) */
-    UPDATE(curp)
+    UPDATE(nombreUsuario)
   BEGIN
     SELECT @nullcnt = 0
     SELECT @validcnt = count(*)
       FROM inserted,CLIENTE
         WHERE
           /* %JoinFKPK(inserted,CLIENTE) */
-          inserted.curp = CLIENTE.curp
+          inserted.nombreUsuario = CLIENTE.nombreUsuario
     /* %NotnullFK(inserted," IS NULL","select @nullcnt = count(*) from inserted where"," AND") */
     
     IF @validcnt + @nullcnt != @NUMROWS

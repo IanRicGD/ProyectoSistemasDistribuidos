@@ -21,22 +21,37 @@ insert into ASIENTO values (1,'A',1,0)
 go
 insert into ASIENTO values (1,'B',1,0)
 go
+insert into ASIENTO values (1,'C',1,0)
+go
+insert into ASIENTO values (1,'D',1,0)
+go
+insert into ASIENTO values (1,'E',1,0)
+go
+insert into ASIENTO values (1,'F',1,0)
+go
 
 insert into ASIENTO values (1,'A',2,0)
 go
 insert into ASIENTO values (1,'B',2,0)
 go
-
+insert into ASIENTO values (1,'C',2,0)
+go
+insert into ASIENTO values (1,'D',2,0)
+go
+insert into ASIENTO values (1,'E',2,0)
+go
+insert into ASIENTO values (1,'F',2,0)
+go
 select * from Asiento
 go
 
-insert into Cliente  values ('GOSA990524HDFMGL05','Álvaro','Gómez','Segovia','9612403301')
+insert into Cliente  values ('Balucito1','12345678','GOSA990524HDFMGL05','Álvaro','Gómez','Segovia','9612403301')
 go
 
 select * from Cliente
 go
 
-insert into RESERVACION  values ('2021-12-10','17:38:00','12345678','GOSA990524HDFMGL05')
+insert into RESERVACION  values ('2021-12-10','17:38:00','12345678','Balucito1')
 go
 
 select * from RESERVACION
