@@ -1,7 +1,8 @@
 import pyodbc
+from funciones import reservacion, pase 
 
 server="localhost"
-bd='Aeropuerto'
+bd='ProyectoDistribuidos'
 usuario = 'MyLogin'
 contrasena= '123'
 
@@ -14,7 +15,10 @@ except Exception as Es:
 
 
 cursor= conexion.cursor()
-cursor.execute("Select * from Asiento;")
+#reservacion(cursor,1,1,"A","12345678","Balucito1")
+pase(cursor,"Balucito1",1,1,1,1,"A",4)
+
+cursor.execute("Select * from PASE;")
 
 asiento=cursor.fetchone()
 
@@ -22,5 +26,6 @@ while asiento:
     print(asiento)
     asiento=cursor.fetchone()
 
+cursor.commit()
 cursor.close
 conexion.close
