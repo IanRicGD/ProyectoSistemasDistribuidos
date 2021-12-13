@@ -2,6 +2,33 @@ use ProyectoDistribuidos
 go
 
 --Procedimientos almacenados
+CREATE OR ALTER PROCEDURE PA_crearReservacion
+	@fecha date,
+	@hora time,
+	@tarjeta varchar(20),
+	@nomUsuario varchar(20)
+	
+AS
+BEGIN
+	set nocount on
+	declare
+	@idReservacion int
+
+	insert into RESERVACION values (@fecha,@hora,@tarjeta,@nomUsuario)
+	set @idReservacion = (select numReserva_D from RESERVACION where fecha = @fecha and hora = @hora)
+	
+	select numReserva_D as Codigo, nombreUsuario as Usuario,tarjeta as Tarjeta, fecha as Fecha, hora as Hora 
+	from RESERVACION where numReserva_D = @idReservacion
+END
+go
+
+begin tran
+	exec PA_crearReservacion '2021-12-12','20:22:00','123456789','Balucito1'
+rollback tran
+go
+DBCC CHECKIDENT (RESERVACION, RESEED, 0)
+go
+
 CREATE OR ALTER PROCEDURE PA_crearPase
 	@nomUsuario varchar(20),
 	@numPase int,
@@ -12,6 +39,7 @@ CREATE OR ALTER PROCEDURE PA_crearPase
 	@numReservacion int
 AS
 BEGIN
+	set nocount on
 	declare
 	@codigoUnicoAsiento int,
 	@horaSalida time,
@@ -31,6 +59,10 @@ BEGIN
 
 	insert into PASE values (@horaSalida, @fechaSalida, @origen, @destino, @codigoUnicoAsiento, @codigoAvion, @numReservacion, @nomUsuario, @numPase, @codigoVuelo)
 	update ASIENTO set ocupado = 1 where numero_D = @codigoUnicoAsiento and codigoAvion = @codigoAvion
+
+	select @nomUsuario as Usuario, @codigoAvion as CodigoAvion, @codigoVuelo as CodigoVuelo, @origen as Origen, 
+	@destino as Destino, @fechaSalida as FechaSalida,@horaSalida as HoraSalida, 
+	CONCAT(@filaAsiento,@columnaAsiento) as Asiento
 END
 go
 

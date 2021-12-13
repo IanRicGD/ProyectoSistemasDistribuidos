@@ -17,11 +17,12 @@ class transactionHandler:
     def abrirTransaccion(self,nombreUsuario,tarjetaCredito):
         conexion = conectar()
         cursor = conexion.cursor()
-        #consulta="insert into TRANSACCIONES values (?);"
-        #cursor.execute(consulta, "En Progreso")
-        fun.consultaVuelos(cursor,'Ciudad de Mexico','Tuxtla', '2021-12-12')
-        fun.consultaAsiento(cursor,1)
-
+        #fun.registrarTransaccion(cursor,'En progreso')
+        #fun.consultaVuelos(cursor,'Ciudad de Mexico','Tuxtla', '2021-12-12')
+        #fun.consultaAsiento(cursor,1)
+        a = fun.reservacion(cursor,"12345678","Balucito1")
+        idRes=a[0][0]
+        b = fun.pase(cursor,"Balucito1",idRes,1,1,1,"A",idRes)
         cursor.commit()
         cursor.close()
         conexion.close()
@@ -31,8 +32,7 @@ class transactionHandler:
          #reservacion(cursor,"12345678","Balucito1")
         #pase(cursor,"Balucito1",1,1,1,1,"A",1)
         
-        #cursor.execute("Select * from RESERVACION")
-        #cursor.execute("Select * from PASE;")
+      
         
         #cursor.commit()
         #cursor.close
@@ -45,6 +45,18 @@ class transactionHandler:
         
     def abortarTransaccion(self):
         return 0
+    
+    def controlConcurrencia(cursor, idT,operacion):
+        disponibilidad = True
+        if(disponibilidad == True):
+            if(operacion == 'Escritura'):
+                #fun.reservacion(cursor,"12345678","Balucito1")
+                #fun.pase(cursor,"Balucito1",1,1,1,1,"A",1)
+                return 1
+            else:
+                return 0
+                
+        
         
 def main():
     ts = transactionHandler()

@@ -24,3 +24,8 @@ go
 
 Grant EXECUTE on object::PA_consultarAsientoDisponible to coordinador
 go
+
+Grant EXECUTE on object::PA_crearReservacion to coordinador
+go
+
+

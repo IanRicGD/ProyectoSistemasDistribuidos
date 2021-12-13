@@ -88,6 +88,7 @@ select * from RESERVACION
 go
 
 
+
 select * from VUELO
 go
 select * from AEROPUERTO
@@ -97,4 +98,4 @@ go
 select * from TRANSACCIONES
 go
 
-DBCC CHECKIDENT (TRANSACCIONES, RESEED, 0)
+DBCC CHECKIDENT (RESERVACION, RESEED, 0)
