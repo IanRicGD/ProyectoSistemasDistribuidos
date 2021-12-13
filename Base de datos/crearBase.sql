@@ -3,6 +3,17 @@ go
 use ProyectoDistribuidos
 go
 
+CREATE TABLE TRANSACCIONES
+(
+	id	 int identity(1,1) NOT NULL,
+	estado varchar(30) NOT NULL --En progreso, Cancelada, Finalizada
+)
+go
+
+ALTER TABLE TRANSACCIONES
+	ADD CONSTRAINT PKTRANSACCIONES PRIMARY KEY CLUSTERED (id ASC)
+go
+
 CREATE TABLE AEROPUERTO
 ( 
 	codigoAeropuerto     int  identity (1,1) NOT NULL ,
@@ -85,8 +96,8 @@ CREATE TABLE PASE
 	ID                   int  identity (1,1) NOT NULL ,
 	hora				 time  NOT NULL ,
 	fecha                date  NOT NULL ,
-	origen				 varchar(20) NOT NULL,
-    destino				 varchar(20) NOT NULL,
+	origen				 varchar(50) NOT NULL,
+    destino				 varchar(50) NOT NULL,
 	numero_D             int  NOT NULL ,
 	codigoAvion          int  NOT NULL ,
 	numReserva_D         int  NOT NULL ,

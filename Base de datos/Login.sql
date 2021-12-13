@@ -1,10 +1,26 @@
-CREATE LOGIN MyLogin WITH PASSWORD = '123';
+use master 
+create LOGIN MyLogin WITH PASSWORD = '123';
+go
 
-create user ian for login MyLogin
+use ProyectoDistribuidos
+go
+create user coordinador for login MyLogin
+go
 
-Grant select,insert on PASE to ian
-Grant EXECUTE on object::PA_crearPase to ian
+Grant select,insert on PASE to coordinador
+go
+Grant select, insert on RESERVACION to coordinador
+go
+Grant select, insert on TRANSACCIONES to coordinador
+go
+Grant EXECUTE on object::PA_crearPase to coordinador
+go
 
-select * from RESERVACION
+Grant EXECUTE on object::PA_crearPase to coordinador
+go
 
-select * from PASE
+Grant EXECUTE on object::PA_consultarVuelos to coordinador
+go
+
+Grant EXECUTE on object::PA_consultarAsientoDisponible to coordinador
+go

@@ -1,36 +1,55 @@
-#from funciones import reservacion, pase 
+import funciones as fun  
 from connect import conectar
 
+class transactionHandler:
+    def __init__(self):
+        pass
+    
+    
+    def coordinadorEventos(self,action,data):
+        #if(action == "Login"):
+            #login
+        #if(action == "Reservacion"):
+            #transaccion
+            self.abrirTransaccion(self,action,data)
+            
  
-def abrirTransaccion(nombreUsuario,tarjetaCredito):
-    conexion = conectar()
-    cursor = conexion.cursor()
-    consulta="insert into TRANSACCIONES values (?);"
-    cursor.execute(consulta, "En Progreso")
-    cursor.commit()
-    #Pelea por entrar
-    
-    
-     #reservacion(cursor,"12345678","Balucito1")
-    #pase(cursor,"Balucito1",1,1,1,1,"A",1)
-    
-    #cursor.execute("Select * from RESERVACION")
-    #cursor.execute("Select * from PASE;")
-    
-    #cursor.commit()
-    #cursor.close
-    #conexion.close
-    
-    
+    def abrirTransaccion(self,nombreUsuario,tarjetaCredito):
+        conexion = conectar()
+        cursor = conexion.cursor()
+        #consulta="insert into TRANSACCIONES values (?);"
+        #cursor.execute(consulta, "En Progreso")
+        fun.consultaVuelos(cursor,'Ciudad de Mexico','Tuxtla', '2021-12-12')
+        fun.consultaAsiento(cursor,1)
 
-def cerrarTransaccion():
-    return 0
+        cursor.commit()
+        cursor.close()
+        conexion.close()
+        #Pelea por entrar
+        
+        
+         #reservacion(cursor,"12345678","Balucito1")
+        #pase(cursor,"Balucito1",1,1,1,1,"A",1)
+        
+        #cursor.execute("Select * from RESERVACION")
+        #cursor.execute("Select * from PASE;")
+        
+        #cursor.commit()
+        #cursor.close
+        #conexion.close
+        
+        
     
-def abortarTransaccion():
-    return 0
-    
+    def cerrarTransaccion(self):
+        return 0
+        
+    def abortarTransaccion(self):
+        return 0
+        
 def main():
-    abrirTransaccion("Balucito1","12345678")
+    ts = transactionHandler()
+    ts.abrirTransaccion("Balucito1","12345678")
     
     
-main()
+if __name__ == "__main__":
+	main()

@@ -1,8 +1,8 @@
 use ProyectoDistribuidos
 go
-------PROCEDIMIENTOS-----
+
+--Procedimientos almacenados
 CREATE OR ALTER PROCEDURE PA_crearPase
--- Definimos los parametros de entrada y salida
 	@nomUsuario varchar(20),
 	@numPase int,
 	@codigoAvion int,
@@ -16,8 +16,8 @@ BEGIN
 	@codigoUnicoAsiento int,
 	@horaSalida time,
 	@fechaSalida date,
-	@origen varchar(20),
-	@destino varchar(20),
+	@origen varchar(50),
+	@destino varchar(50),
 	@codigoAeropuertoLlegada int,
 	@codigoAeropuertoSalida int
 
@@ -30,7 +30,60 @@ BEGIN
 	set @destino = (select CONCAT(localidad,',',pais) from AEROPUERTO where codigoAeropuerto=@codigoAeropuertoLlegada)
 
 	insert into PASE values (@horaSalida, @fechaSalida, @origen, @destino, @codigoUnicoAsiento, @codigoAvion, @numReservacion, @nomUsuario, @numPase, @codigoVuelo)
+	update ASIENTO set ocupado = 1 where numero_D = @codigoUnicoAsiento and codigoAvion = @codigoAvion
 END
+go
+
+CREATE OR ALTER PROCEDURE PA_consultarVuelos
+	@origen varchar(50),
+	@destino varchar(50),
+	@fechaSalida date
+AS
+BEGIN
+
+	select
+	V.codigoAvion as CodigoAvion, V.codigoUnico_D as CodigoVuelo, 
+	V.fechaSalida as Fecha, V.horaSalida as HoraSalida, 
+	concat(Sa.localidad,',',Sa.pais) as Origen, concat(Ll.localidad,',',Ll.pais) as Destino
+	from VUELO as V 
+	inner join AEROPUERTO as Ll
+	on V.codigoAeropuertoLlegada = Ll.codigoAeropuerto
+	inner join  AEROPUERTO as Sa
+	on V.codigoAeropuertoSalida = Sa.codigoAeropuerto
+	where V.fechaSalida = @fechaSalida
+	and concat(Ll.localidad,',',Ll.pais) like '%'+ @destino + '%'
+	and concat(Sa.localidad,',',Sa.pais) like '%'+ @origen + '%'
+	
+END
+go
+--Prueba
+execute PA_consultarVuelos 'Ciudad de Mexico','Tuxtla', '2021-12-12'
+go
+execute PA_consultarVuelos 'Tuxtla','Ciudad de Mexico', '2021-12-10'
+go
+execute PA_consultarVuelos 'Tuxtla','Ciudad de Mexico', '2021-12-12'
+go
+
+CREATE OR ALTER PROCEDURE PA_consultarAsientoDisponible
+	@codigoAvion int 
+AS
+BEGIN
+	
+	select  numero_D as CodigoAsiento,  fila as Fila, columna as Columna from ASIENTO 
+	where codigoAvion = @codigoAvion and ocupado = 0
+	
+END
+go
+
+--Prueba
+exec PA_consultarAsientoDisponible 1
+go
+exec PA_consultarAsientoDisponible 2
+go
+exec PA_consultarAsientoDisponible 3
+go
+
+select * from ASIENTO
 
 ------TRIGGERS-----
 --TRIGGER: TRIGGER PARA CIFRAR LA CONTRASEÑA DEL USUARIO

@@ -11,4 +11,24 @@ def pase(cursor,nombreUsuario,numPase,codigoAvion,codigoVuelo,asientoFila,asient
 	consulta="exec PA_crearPase ?,?,?,?,?,?,?;"
 	cursor.execute(consulta,nombreUsuario,numPase,codigoAvion,codigoVuelo,asientoFila,asientoColumna,numReservacion)
 
+def consultaVuelos(cursor,origen,destino, fechaSalida):
+    consulta = "exec PA_consultarVuelos ?,?,?;"
+    cursor.execute(consulta,origen,destino,fechaSalida)
+    listaVuelos = []
+    resultado=cursor.fetchone()
+    while resultado:
+        listaVuelos.append(resultado)
+        resultado=cursor.fetchone()
+    
+    print(listaVuelos)
 
+def consultaAsiento(cursor,codigoVuelo):
+    consulta = "exec PA_consultarAsientoDisponible ?;"
+    cursor.execute(consulta, codigoVuelo)
+    listaAsientos = []
+    resultado=cursor.fetchone()
+    while resultado:
+        listaAsientos.append(resultado)
+        resultado=cursor.fetchone()
+    
+    print(listaAsientos)
