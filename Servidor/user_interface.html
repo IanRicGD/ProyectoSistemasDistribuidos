@@ -13,7 +13,13 @@
 		<form>
 			<div class="input-group">
 			  <div class="form-outline">
-			    <input type="text" id="form1" class="form-control" onkeypress="keydetect(event)" />
+			    <input type="text" id="form1" class="form-control" placeholder="Origen" />
+			  </div>
+			  <div class="form-outline">
+			    <input type="text" id="form2" class="form-control" placeholder="Destino" />
+			  </div>
+			  <div class="form-outline">
+			    <input type="text" id="form3" class="form-control" placeholder="Fecha" />
 			  </div>
 			  <button type="button" class="btn btn-primary" onclick="search()">
 			    <i class="fas fa-search"></i>
@@ -42,8 +48,12 @@ function responseListener () {
 }
 
 function search(){
-	var query = document.getElementById("form1").value;
-	var URL = window.location.href+"?="+query;
+	alert("Entra");
+	var query1 = document.getElementById("form1").value;
+	var query2 = document.getElementById("form2").value;
+	var query3 = document.getElementById("form3").value;
+	var URL = window.location.href+"?="+query1+"+"+query2+"+"+query3;
+	alert("URL");
 	var xhr = new XMLHttpRequest();
 	xhr.addEventListener("load", responseListener);
 	xhr.open("GET", URL, true);

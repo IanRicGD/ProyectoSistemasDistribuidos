@@ -57,6 +57,13 @@ class WebServer(BaseHTTPRequestHandler):
 			self.send_header("Content-type", "text/html")
 			self.end_headers()
 			self._serve_ui_file()
+		elif self.path.find('?=') != -1:
+			query = self.path.split('?=')[1].split("+")
+			print(query)
+			self.send_response(200)
+			self.send_header("Content-type", "text/html")
+			self.end_headers()
+			self.wfile.write(bytes("<p>LLEGO!!!</p>", "utf-8"))
 		else:
 			self._serve_file(self.path[1:])
 
