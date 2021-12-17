@@ -115,7 +115,30 @@ go
 exec PA_consultarAsientoDisponible 3
 go
 
-select * from ASIENTO
+CREATE OR ALTER PROCEDURE PA_validarLogin
+	@nombreUsuario varchar(20),	
+	@contraseña varchar(100)
+AS
+BEGIN
+	declare 
+	@contraseñaHash NVARCHAR(4000)
+
+	set @contraseñaHash = HASHBYTES('MD5', CAST( @contraseña AS NVARCHAR(4000)))
+	if exists (select nombreUsuario,contraseña from CLIENTE where nombreUsuario = @nombreUsuario and contraseña = @contraseñaHash)
+	begin
+		select 'True' as Resultado
+	end
+	else 
+	begin
+		select 'False' as Resultado
+	end	
+END
+go
+---Prueba
+exec PA_validarLogin 'Balucito1','12345678'
+exec PA_validarLogin 'Balucito2','12345678'
+
+select * from cliente
 
 ------TRIGGERS-----
 --TRIGGER: TRIGGER PARA CIFRAR LA CONTRASEÑA DEL USUARIO

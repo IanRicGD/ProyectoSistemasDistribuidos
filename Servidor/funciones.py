@@ -15,7 +15,7 @@ def reservacion(cursor,tarjeta,nomUsuario):
     return reservacion
     
 
-#hora, fecha, origen, destino, numAsiento, codigoAvion, codigoReservación, nombreUsuario, numPase, codigoVuelo
+
 def pase(cursor,nombreUsuario,numPase,codigoAvion,codigoVuelo,asientoFila,asientoColumna,numReservacion):
     consulta="exec PA_crearPase ?,?,?,?,?,?,?;"
     cursor.execute(consulta,nombreUsuario,numPase,codigoAvion,codigoVuelo,asientoFila,asientoColumna,numReservacion)
@@ -55,3 +55,12 @@ def consultaAsiento(cursor,codigoVuelo):
 def registrarTransaccion(cursor,status):
     consulta="insert into TRANSACCIONES values (?);"
     cursor.execute(consulta, status)
+    
+def login(cursor,nombreUsuario,contraseña):
+    consulta = "exec PA_validarLogin ?,?;"
+    cursor.execute(consulta, nombreUsuario,contraseña)
+    lista= list()
+    resultado=cursor.fetchone()
+    lista.append(list(resultado)[0])
+    print(lista)
+    return lista

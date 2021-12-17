@@ -28,4 +28,7 @@ go
 Grant EXECUTE on object::PA_crearReservacion to coordinador
 go
 
+Grant EXECUTE on object::PA_validarLogin to coordinador
+go
+
 
