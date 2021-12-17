@@ -80,22 +80,3 @@ go
 
 select * from VUELO
 go
-
-select * from PASE
-go
-
-select * from RESERVACION
-go
-
-
-
-select * from VUELO
-go
-select * from AEROPUERTO
-go
-
-
-select * from TRANSACCIONES
-go
-
-DBCC CHECKIDENT (RESERVACION, RESEED, 0)

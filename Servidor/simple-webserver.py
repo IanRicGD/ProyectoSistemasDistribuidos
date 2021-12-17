@@ -18,6 +18,37 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 address = "0.0.0.0"
 port = 8080
 
+from transactionHandler import transactionHandler
+TH = transactionHandler()
+
+def transaccion(action,data):
+    global TH
+    if(action == "Login"):
+        #login
+        lista = TH.validarLogin(action,data)
+    if(action == "Reservacion" or "ConsultaVuelo" or "ConsultaAsiento"):
+        #Transaccion
+        lista = TH.abrirTransaccion(action,data)
+    return lista 
+def listToHTML(lista):
+	if len(lista) > 0:
+		tabla = '<div><h2>Resultados</h2></div><table class="table">'+'<thead>'+'<tr>'
+		tabla += '<th>Avion</th>'
+		tabla += '<th>Vuelo</th>'
+		tabla += '<th>Fecha</th>'
+		tabla += '<th>Hora de Salida</th>'
+		tabla += '<th>Origen</th>'
+		tabla += '<th>Destino</th>'
+		tabla += '<th>-</th>'
+		tabla += '</tr></thead><tbody>'
+		for l in lista:
+			tabla += '<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>'.format(l[0],
+				l[1], l[2], l[3], l[4], l[5],'<button onclick="queryAsiento({})">Reservar</button>'.format(l[0]))
+		tabla += '</tbody></table>'
+		return tabla
+	else:
+		return "<p>Sin resultados</p>"
+
 class WebServer(BaseHTTPRequestHandler):
 
 	def _serve_file(self, rel_path):
@@ -59,11 +90,23 @@ class WebServer(BaseHTTPRequestHandler):
 			self._serve_ui_file()
 		elif self.path.find('?=') != -1:
 			query = self.path.split('?=')[1].split("+")
+			query = [q.replace("%20", " ") for q in query]
 			print(query)
+			response = listToHTML(transaccion("ConsultaVuelo", query))
+			print(response)
 			self.send_response(200)
 			self.send_header("Content-type", "text/html")
 			self.end_headers()
-			self.wfile.write(bytes("<p>LLEGO!!!</p>", "utf-8"))
+			self.wfile.write(bytes(response, "utf-8"))
+		elif self.path.find('?2=') != -1:
+			query = self.path.split('?2=')[1]
+			print(query)
+			response = transaccion("ConsultaAsiento", query)
+			print(response)
+			self.send_response(200)
+			self.send_header("Content-type", "text/html")
+			self.end_headers()
+			self.wfile.write(bytes("<p>Aqui van los asientos</p>", "utf-8"))
 		else:
 			self._serve_file(self.path[1:])
 

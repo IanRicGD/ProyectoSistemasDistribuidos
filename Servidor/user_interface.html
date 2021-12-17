@@ -26,8 +26,13 @@
 			    Search
 			  </button>
 			</div>
+
 			<div class="d-flex justify-content-center align-items-center container" id="Results">
 			</div>
+
+			<div class="d-flex justify-content-center align-items-center container" id="Results2">
+			</div>
+
 		</form>
 	</div>
 </body>
@@ -41,19 +46,30 @@ function keydetect(event){
     }
 }
 
-function responseListener () {
+function responseListener() {
   console.log(this.responseText);
   var resultDiv = document.getElementById("Results");
   resultDiv.innerHTML = this.responseText;
 }
+function responseListener2() {
+  console.log(this.responseText);
+  var resultDiv = document.getElementById("Results2");
+  resultDiv.innerHTML = this.responseText;
+}
 
 function search(){
-	alert("Entra");
 	var query1 = document.getElementById("form1").value;
 	var query2 = document.getElementById("form2").value;
 	var query3 = document.getElementById("form3").value;
 	var URL = window.location.href+"?="+query1+"+"+query2+"+"+query3;
-	alert("URL");
+	var xhr = new XMLHttpRequest();
+	xhr.addEventListener("load", responseListener);
+	xhr.open("GET", URL, true);
+	xhr.send(null);
+}
+
+function queryAsiento(codigoAvion){
+	var URL = window.location.href+"?2="+codigoAvion;
 	var xhr = new XMLHttpRequest();
 	xhr.addEventListener("load", responseListener);
 	xhr.open("GET", URL, true);
