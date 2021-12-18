@@ -22,12 +22,9 @@ BEGIN
 END
 go
 
-begin tran
-	exec PA_crearReservacion '2021-12-12','20:22:00','123456789','Balucito1'
-rollback tran
-go
-DBCC CHECKIDENT (RESERVACION, RESEED, 0)
-go
+--Prueba
+--exec PA_crearReservacion '2021-12-12','20:22:00','123456789','Balucito1'
+--go
 
 CREATE OR ALTER PROCEDURE PA_crearPase
 	@nomUsuario varchar(20),
@@ -54,8 +51,8 @@ BEGIN
 	set @codigoUnicoAsiento = (select numero_D from ASIENTO where codigoAvion=@codigoAvion and fila=@filaAsiento and columna=@columnaAsiento)
 	set @codigoAeropuertoLlegada = (select codigoAeropuertoLlegada from VUELO where codigoAvion=@codigoAvion and codigoUnico_D=@codigoVuelo)
 	set @codigoAeropuertoSalida= (select codigoAeropuertoSalida from VUELO where codigoAvion=@codigoAvion and codigoUnico_D=@codigoVuelo)
-	set @origen = (select CONCAT(localidad,',',pais) from AEROPUERTO where codigoAeropuerto=@codigoAeropuertoSalida)
-	set @destino = (select CONCAT(localidad,',',pais) from AEROPUERTO where codigoAeropuerto=@codigoAeropuertoLlegada)
+	set @origen = (select CONCAT(localidad,',',estado) from AEROPUERTO where codigoAeropuerto=@codigoAeropuertoSalida)
+	set @destino = (select CONCAT(localidad,',',estado) from AEROPUERTO where codigoAeropuerto=@codigoAeropuertoLlegada)
 
 	insert into PASE values (@horaSalida, @fechaSalida, @origen, @destino, @codigoUnicoAsiento, @codigoAvion, @numReservacion, @nomUsuario, @numPase, @codigoVuelo)
 	update ASIENTO set ocupado = 1 where numero_D = @codigoUnicoAsiento and codigoAvion = @codigoAvion
@@ -76,25 +73,25 @@ BEGIN
 	select
 	V.codigoAvion as CodigoAvion, V.codigoUnico_D as CodigoVuelo, 
 	V.fechaSalida as Fecha, V.horaSalida as HoraSalida, 
-	concat(Sa.localidad,',',Sa.pais) as Origen, concat(Ll.localidad,',',Ll.pais) as Destino
+	concat(Sa.localidad,',',Sa.estado) as Origen, concat(Ll.localidad,',',Ll.estado) as Destino
 	from VUELO as V 
 	inner join AEROPUERTO as Ll
 	on V.codigoAeropuertoLlegada = Ll.codigoAeropuerto
 	inner join  AEROPUERTO as Sa
 	on V.codigoAeropuertoSalida = Sa.codigoAeropuerto
 	where V.fechaSalida = @fechaSalida
-	and concat(Ll.localidad,',',Ll.pais) like '%'+ @destino + '%'
-	and concat(Sa.localidad,',',Sa.pais) like '%'+ @origen + '%'
+	and concat(Ll.localidad,',',Ll.estado) like '%'+ @destino + '%'
+	and concat(Sa.localidad,',',Sa.estado) like '%'+ @origen + '%'
 	
 END
 go
 --Prueba
-execute PA_consultarVuelos 'Ciudad de Mexico','Tuxtla', '2021-12-12'
-go
-execute PA_consultarVuelos 'Tuxtla','Ciudad de Mexico', '2021-12-10'
-go
-execute PA_consultarVuelos 'Tuxtla','Ciudad de Mexico', '2021-12-12'
-go
+--execute PA_consultarVuelos 'Ciudad de Mexico','Tuxtla', '2021-12-12'
+--go
+--execute PA_consultarVuelos 'Tuxtla','Ciudad de Mexico', '2021-12-10'
+--go
+--execute PA_consultarVuelos 'Tuxtla','Ciudad de Mexico', '2021-12-12'
+--go
 
 CREATE OR ALTER PROCEDURE PA_consultarAsientoDisponible
 	@codigoAvion int 
@@ -108,12 +105,12 @@ END
 go
 
 --Prueba
-exec PA_consultarAsientoDisponible 1
-go
-exec PA_consultarAsientoDisponible 2
-go
-exec PA_consultarAsientoDisponible 3
-go
+--exec PA_consultarAsientoDisponible 1
+--go
+--exec PA_consultarAsientoDisponible 2
+--go
+--exec PA_consultarAsientoDisponible 3
+--go
 
 CREATE OR ALTER PROCEDURE PA_validarLogin
 	@nombreUsuario varchar(20),	
@@ -135,10 +132,10 @@ BEGIN
 END
 go
 ---Prueba
-exec PA_validarLogin 'Balucito1','12345678'
-exec PA_validarLogin 'Balucito2','12345678'
-
-select * from cliente
+--exec PA_validarLogin 'Balucito1','12345678'
+--go
+--exec PA_validarLogin 'Balucito2','12345678'
+--go
 
 ------TRIGGERS-----
 --TRIGGER: TRIGGER PARA CIFRAR LA CONTRASEÑA DEL USUARIO

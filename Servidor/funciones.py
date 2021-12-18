@@ -52,9 +52,15 @@ def consultaAsiento(cursor,codigoVuelo):
     print(listaAsientos)
     return listaAsientos
 
-def registrarTransaccion(cursor,status):
-    consulta="insert into TRANSACCIONES values (?);"
-    cursor.execute(consulta, status)
+def registrarTransaccion(cursor,status,action):
+    fecha = str(date.today())
+    hora = datetime.today().strftime('%H:%M:%S')
+    consulta="insert into TRANSACCIONES values (?,?,?,?);"
+    cursor.execute(consulta,fecha,hora,action,status)
+    
+def terminarTransaccion(cursor,status,idT):
+    consulta = "update TRANSACCIONES set estado = (?) where id = (?);"
+    cursor.execute(consulta,status,idT)
     
 def login(cursor,nombreUsuario,contraseña):
     consulta = "exec PA_validarLogin ?,?;"

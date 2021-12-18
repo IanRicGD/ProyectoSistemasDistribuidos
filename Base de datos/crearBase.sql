@@ -6,7 +6,10 @@ go
 CREATE TABLE TRANSACCIONES
 (
 	id	 int identity(1,1) NOT NULL,
-	estado varchar(30) NOT NULL --En progreso, Cancelada, Finalizada
+	fecha date NOT NULL,
+	hora time NOT NULL,
+	accion varchar(30) NOT NULL,
+	estado varchar(30) NOT NULL --En progreso, Abortada, Finalizada 
 )
 go
 
@@ -19,7 +22,8 @@ CREATE TABLE AEROPUERTO
 	codigoAeropuerto     int  identity (1,1) NOT NULL ,
 	nombre               varchar(50)  NOT NULL ,
 	localidad            varchar(50)  NOT NULL ,
-	pais                 varchar(50)  NOT NULL 
+	estado               varchar(50)  NOT NULL,
+	
 )
 go
 
@@ -28,7 +32,6 @@ go
 ALTER TABLE AEROPUERTO
 	ADD CONSTRAINT XPKAEROPUERTO PRIMARY KEY  CLUSTERED (codigoAeropuerto ASC)
 go
-
 
 
 CREATE TABLE ASIENTO

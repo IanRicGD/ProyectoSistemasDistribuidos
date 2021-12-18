@@ -11,7 +11,7 @@ Grant select,insert on PASE to coordinador
 go
 Grant select, insert on RESERVACION to coordinador
 go
-Grant select, insert on TRANSACCIONES to coordinador
+Grant select, insert,update on TRANSACCIONES to coordinador
 go
 Grant EXECUTE on object::PA_crearPase to coordinador
 go
