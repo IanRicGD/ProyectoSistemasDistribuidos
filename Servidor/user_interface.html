@@ -134,11 +134,7 @@ function responseListener3() {
 function responseListener4() {
   console.log(this.responseText);
   var resultDiv = document.getElementById("Results4");
-  if(this.responseText == "True"){
-  	alert("Reservación realizada correctamente.");
-  }else{
-  	alert("Transacción Fallida.");
-  }
+ 	resultDiv.innerHTML = this.responseText; 
 }
 
 function search(){
@@ -181,7 +177,7 @@ function login(){
 
 function reservar(){
 	var tarjeta = document.getElementById("tarjeta").value;
-	var URL = window.location.protocol+window.location.host+"?3="+usuario+"+"+tarjeta+"+"+selectedAvion[0]+"+"+selectedAvion[1]+"+"+selectedAsiento[0]+"+"+selectedAsiento[1];
+	var URL = window.location.protocol+window.location.host+"?3="+tarjeta+"+"+usuario+"+"+selectedAvion[0]+"+"+selectedAvion[1]+"+"+selectedAsiento[0]+"+"+selectedAsiento[1];
 	var xhr = new XMLHttpRequest();
 	xhr.addEventListener("load", responseListener4);
 	xhr.open("GET", URL, true);

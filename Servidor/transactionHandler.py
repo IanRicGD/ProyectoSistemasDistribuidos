@@ -1,6 +1,8 @@
 import funciones as fun  
 from connect import conectar
 
+disponibilidadLectura = True
+disponibilidadEscritura = True
 
 class transactionHandler:
     def __init__(self):
@@ -33,18 +35,24 @@ class transactionHandler:
       
     
     def coordinadorTransacciones(self,cursor,conexion, action,data):
-        disponibilidadLectura = True
-        disponibilidadEscritura = True
+        global disponibilidadEscritura
+        global disponibilidadLectura
         if(action == "ConsultaVuelo"):
-            if(disponibilidadLectura == True):
+            if(disponibilidadLectura):
                 #Origen,Destino,FechaSalida
                 lista = fun.consultaVuelos(cursor, data[0],data[1],data[2])
                 return lista
+            else:
+                self.abortarTransaccion(cursor,conexion)
+                return []
         elif(action == "ConsultaAsiento"):
-            if(disponibilidadLectura == True):
+            if(disponibilidadLectura):
                 #codigoAvion
                 lista = fun.consultaAsiento(cursor,data[0])
                 return lista
+            else:
+                self.abortarTransaccion(cursor,conexion)
+                return []
         elif(action == "Reservacion"):
             if(disponibilidadEscritura == True):
                 disponibilidadEscritura = False
@@ -53,18 +61,19 @@ class transactionHandler:
                 a = fun.reservacion(cursor,data[0],data[1])
                 idRes=a[0][0]
                 #cursor,nombreUsuario,numPase,codigoAvion,codigoVuelo,asientoFila,asientoColumna,numReservacion
-                lista = fun.pase(cursor,data[0],idRes,data[2],data[3],data[4],data[5],idRes)
+                lista = fun.pase(cursor,data[1],idRes,data[2],data[3],data[4],data[5],idRes)
                 self.cerrarTransaccion(cursor,conexion)
                 disponibilidadEscritura = True
                 disponibilidadLectura = True
                 return lista
             else:
                 self.abortarTransaccion(cursor,conexion)
+                return []
         
         
                 
         
-def main(action,data):
+def main2(action,data):
     ts = transactionHandler()
     if(action == "Login"):
         #login
@@ -76,4 +85,4 @@ def main(action,data):
     
 if __name__ == "__main__":
     data = ["Balucito1","12345678"]
-    main("Login",data)
+    main2("Login",data)

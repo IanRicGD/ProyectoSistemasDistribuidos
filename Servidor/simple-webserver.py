@@ -13,13 +13,16 @@ import os
 import sys
 import json
 import magic
-from http.server import BaseHTTPRequestHandler, HTTPServer
+from http.server import BaseHTTPRequestHandler, HTTPServer, ThreadingHTTPServer
 
 address = "0.0.0.0"
 port = 8080
 
-from transactionHandler import transactionHandler
+from transactionHandler import transactionHandler, disponibilidadLectura, disponibilidadEscritura
 TH = transactionHandler()
+from threading import Thread
+import concurrent.futures
+
 
 def transaccion(action,data):
     global TH
@@ -28,7 +31,10 @@ def transaccion(action,data):
         lista = TH.validarLogin(action,data)
     if(action == "Reservacion" or action == "ConsultaVuelo" or action == "ConsultaAsiento"):
         #Transaccion
-        lista = TH.abrirTransaccion(action,data)
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+        	future = executor.submit(TH.abrirTransaccion, action, data)
+        	return_value = future.result()
+        	lista = return_value
     return lista 
 def listToHTML(lista):
 	if len(lista) > 0:
@@ -59,6 +65,24 @@ def listToHTML(lista):
 					l[1], l[2], '<button type="button" onclick="seleccionarAsiento({},\'{}\')">Seleccionar</button>'.format(l[1],l[2]))
 			tabla += '</tbody></table></div>'
 			return tabla
+		elif len(lista[0]) == 8:
+			tabla = '<div><h2>Pase de Abordar</h2></div><div><table class="table">'+'<thead>'+'<tr>'
+			tabla += '<th>Usuario</th>'
+			tabla += '<th>Avion</th>'
+			tabla += '<th>Vuelo</th>'
+			tabla += '<th>Origen</th>'
+			tabla += '<th>Destino</th>'
+			tabla += '<th>Fecha</th>'
+			tabla += '<th>Hora de Salida</th>'
+			tabla += '<th>Asiento</th>'
+			tabla += '</tr></thead><tbody>'
+			for l in lista:
+				tabla += '<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>'.format(l[0],
+					l[1], l[2], l[3], l[4], l[5],l[6], l[7])
+			tabla += '</tbody></table></div>'
+			return tabla
+		else:
+			return "<p>Error en solicitud</p>"
 	else:
 		return "<p>Sin resultados</p>"
 
@@ -134,7 +158,7 @@ class WebServer(BaseHTTPRequestHandler):
 		elif self.path.find("?3=") != -1:
 			query = self.path.split('?3=')[1].split("+")
 			print(query)
-			response = transaccion("Reservacion", query)
+			response = listToHTML(transaccion("Reservacion", query))
 			self.response = response
 			self.send_response(200)
 			self.send_header("Content-type", "text/html")
@@ -163,7 +187,7 @@ class WebServer(BaseHTTPRequestHandler):
 def main():
 	address2 = str(input("Input the host address: "))
 	address = address2 if address2 != "" else address 
-	webServer = HTTPServer((address, port), WebServer)
+	webServer = ThreadingHTTPServer((address, port), WebServer)
 	print("Servidor ON")
 	print ("\tAtending requests at http://{}:{}".format(
 		address, port))
