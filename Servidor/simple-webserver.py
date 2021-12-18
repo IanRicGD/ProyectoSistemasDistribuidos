@@ -26,30 +26,46 @@ def transaccion(action,data):
     if(action == "Login"):
         #login
         lista = TH.validarLogin(action,data)
-    if(action == "Reservacion" or "ConsultaVuelo" or "ConsultaAsiento"):
+    if(action == "Reservacion" or action == "ConsultaVuelo" or action == "ConsultaAsiento"):
         #Transaccion
         lista = TH.abrirTransaccion(action,data)
     return lista 
 def listToHTML(lista):
 	if len(lista) > 0:
-		tabla = '<div><h2>Resultados</h2></div><table class="table">'+'<thead>'+'<tr>'
-		tabla += '<th>Avion</th>'
-		tabla += '<th>Vuelo</th>'
-		tabla += '<th>Fecha</th>'
-		tabla += '<th>Hora de Salida</th>'
-		tabla += '<th>Origen</th>'
-		tabla += '<th>Destino</th>'
-		tabla += '<th>-</th>'
-		tabla += '</tr></thead><tbody>'
-		for l in lista:
-			tabla += '<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>'.format(l[0],
-				l[1], l[2], l[3], l[4], l[5],'<button onclick="queryAsiento({})">Reservar</button>'.format(l[0]))
-		tabla += '</tbody></table>'
-		return tabla
+		if len(lista[0]) == 6:
+			tabla = '<div><h2>Resultados</h2></div><div><table class="table">'+'<thead>'+'<tr>'
+			tabla += '<th>Avion</th>'
+			tabla += '<th>Vuelo</th>'
+			tabla += '<th>Fecha</th>'
+			tabla += '<th>Hora de Salida</th>'
+			tabla += '<th>Origen</th>'
+			tabla += '<th>Destino</th>'
+			tabla += '<th>-</th>'
+			tabla += '</tr></thead><tbody>'
+			for l in lista:
+				tabla += '<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>'.format(l[0],
+					l[1], l[2], l[3], l[4], l[5],'<button type="button" onclick="queryAsiento({},{})">Seleccionar</button>'.format(l[0],l[1]))
+			tabla += '</tbody></table></div>'
+			return tabla
+		elif len(lista[0]) == 3:
+			tabla = '<div><h2>Asientos disponibles</h2></div><div><table class="table">'+'<thead>'+'<tr>'
+			tabla += '<th>Numero</th>'
+			tabla += '<th>Fila</th>'
+			tabla += '<th>Columna</th>'
+			tabla += '<th>-</th>'
+			tabla += '</tr></thead><tbody>'
+			for l in lista:
+				tabla += '<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>'.format(l[0],
+					l[1], l[2], '<button type="button" onclick="seleccionarAsiento({},\'{}\')">Seleccionar</button>'.format(l[1],l[2]))
+			tabla += '</tbody></table></div>'
+			return tabla
 	else:
 		return "<p>Sin resultados</p>"
 
+
+
 class WebServer(BaseHTTPRequestHandler):
+	response = " "
 
 	def _serve_file(self, rel_path):
 		if not os.path.isfile(rel_path):
@@ -83,6 +99,7 @@ class WebServer(BaseHTTPRequestHandler):
 
 
 	def do_GET(self):
+		print(self.path)
 		if self.path == '/':
 			self.send_response(200)
 			self.send_header("Content-type", "text/html")
@@ -93,7 +110,6 @@ class WebServer(BaseHTTPRequestHandler):
 			query = [q.replace("%20", " ") for q in query]
 			print(query)
 			response = listToHTML(transaccion("ConsultaVuelo", query))
-			print(response)
 			self.send_response(200)
 			self.send_header("Content-type", "text/html")
 			self.end_headers()
@@ -101,12 +117,34 @@ class WebServer(BaseHTTPRequestHandler):
 		elif self.path.find('?2=') != -1:
 			query = self.path.split('?2=')[1]
 			print(query)
-			response = transaccion("ConsultaAsiento", query)
-			print(response)
+			response = listToHTML(transaccion("ConsultaAsiento", query))
+			self.response = response
 			self.send_response(200)
 			self.send_header("Content-type", "text/html")
 			self.end_headers()
-			self.wfile.write(bytes("<p>Aqui van los asientos</p>", "utf-8"))
+			self.wfile.write(bytes(self.response, "utf-8"))
+		elif self.path.find("LOG=") != -1:
+			query = self.path.split('LOG=')[1].split("+")
+			response = transaccion("Login", query)
+			self.response = response
+			self.send_response(200)
+			self.send_header("Content-type", "text/html")
+			self.end_headers()
+			self.wfile.write(bytes(self.response, "utf-8"))
+		elif self.path.find("?3=") != -1:
+			query = self.path.split('?3=')[1].split("+")
+			print(query)
+			response = transaccion("Reservacion", query)
+			self.response = response
+			self.send_response(200)
+			self.send_header("Content-type", "text/html")
+			self.end_headers()
+			self.wfile.write(bytes(self.response, "utf-8"))
+		elif self.path == "/?":
+			self.send_response(200)
+			self.send_header("Content-type", "text/html")
+			self.end_headers()
+			self.wfile.write(bytes(self.response, "utf-8"))
 		else:
 			self._serve_file(self.path[1:])
 

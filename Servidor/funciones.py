@@ -59,8 +59,7 @@ def registrarTransaccion(cursor,status):
 def login(cursor,nombreUsuario,contraseña):
     consulta = "exec PA_validarLogin ?,?;"
     cursor.execute(consulta, nombreUsuario,contraseña)
-    lista= list()
     resultado=cursor.fetchone()
-    lista.append(list(resultado)[0])
+    lista = resultado[0]
     print(lista)
     return lista

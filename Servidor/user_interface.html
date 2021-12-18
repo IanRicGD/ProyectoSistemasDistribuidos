@@ -1,7 +1,7 @@
 <html>
 <head>
 <title>VUELOS</title>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
@@ -26,18 +26,75 @@
 			    Search
 			  </button>
 			</div>
-
-			<div class="d-flex justify-content-center align-items-center container" id="Results">
-			</div>
-
-			<div class="d-flex justify-content-center align-items-center container" id="Results2">
-			</div>
-
 		</form>
 	</div>
+	<div class="justify-content-center align-items-center container" id="Results">
+		</div>
+
+	<div class="justify-content-center align-items-center container" id="Results2">
+	</div>
+
+	<div class="justify-content-center align-items-center container" id="login" style="visibility:hidden">
+		<h2>Login</h2>
+		<form>
+			<div class="input-group">
+			  <div class="form-outline">
+			    <input type="text" id="user" class="form-control" placeholder="Usuario"/>
+			  </div>
+			  <div class="form-outline">
+			    <input type="password" id="pass" class="form-control" placeholder="Contraseña"/>
+			  </div>
+			  <button type="button" class="btn btn-primary" onclick="login()">
+			    <i class="fas fa-search"></i>
+			    Login
+			  </button>
+			</div>
+		</form>
+	</div>
+
+	<div class="justify-content-center align-items-center container" id="Results4" style="visibility:hidden">
+		<h2>Reservación</h2>
+		<form>
+			<div class="input-group">
+			  <div class="form-control">
+			  	<label for="user2">Usuario</label>
+			    <input type="text" id="user2" class="form-control" readonly/>
+			  </div>
+			  <div class="form-control">
+			  	<label for="tarjeta">Tarjeta</label>
+			    <input type="tarjeta" id="tarjeta" class="form-control" placeholder="Tarjeta" />
+			  </div>
+			  <div class="form-control">
+			  	<label for="avion">Avion</label>
+			    <input type="text" id="avion" class="form-control" readonly/>
+			  </div>
+			  <div class="form-control">
+			  	<label for="vuelo">Vuelo</label>
+			    <input type="text" id="vuelo" class="form-control" readonly/>
+			  </div>
+			  <div class="form-control">
+			  	<label for="fila">Fila de Asiento</label>
+			    <input type="text" id="fila" class="form-control" readonly/>
+			  </div>
+			  <div class="form-control">
+			  	<label for="columna">Columna de Asiento</label>
+			    <input type="text" id="columna" class="form-control" readonly/>
+			  </div>
+			  <button type="button" class="btn btn-primary" onclick="reservar()">
+			    <i class="fas fa-search"></i>
+			    Reservar
+			  </button>
+			</div>
+		</form>
+	</div>
+
 </body>
 </html>
 <script language="javascript">
+
+var selectedAvion = [];
+var selectedAsiento = [];
+var usuario = " ";
 
 function keydetect(event){
 	if (event.keyCode == 13) {
@@ -56,22 +113,77 @@ function responseListener2() {
   var resultDiv = document.getElementById("Results2");
   resultDiv.innerHTML = this.responseText;
 }
+function responseListener3() {
+  console.log(this.responseText);
+  var resultDiv = document.getElementById("login");
+  if(this.responseText == "True"){
+  	var user2 = document.getElementById("user2").value = usuario;
+  	var avion = document.getElementById("avion").value = selectedAvion[0];
+  	var vuelo = document.getElementById("vuelo").value = selectedAvion[1];
+  	var fila = document.getElementById("fila").value = selectedAsiento[0];
+  	var columna = document.getElementById("columna").value = selectedAsiento[1];
+  	var container4 = document.getElementById("Results4");
+  	container4.style.visibility = "visible";
+  	resultDiv.innerHTML = "<p>Login Exitoso.</p>";
+  }else{
+  	usuario = " ";
+  	resultDiv.innerHTML += "<p>Login Fallido.</p>";
+  }
+}
+
+function responseListener4() {
+  console.log(this.responseText);
+  var resultDiv = document.getElementById("Results4");
+  if(this.responseText == "True"){
+  	alert("Reservación realizada correctamente.");
+  }else{
+  	alert("Transacción Fallida.");
+  }
+}
 
 function search(){
 	var query1 = document.getElementById("form1").value;
 	var query2 = document.getElementById("form2").value;
 	var query3 = document.getElementById("form3").value;
-	var URL = window.location.href+"?="+query1+"+"+query2+"+"+query3;
+	var URL = window.location.protocol+window.location.host+"?="+query1+"+"+query2+"+"+query3;
 	var xhr = new XMLHttpRequest();
 	xhr.addEventListener("load", responseListener);
 	xhr.open("GET", URL, true);
 	xhr.send(null);
 }
 
-function queryAsiento(codigoAvion){
-	var URL = window.location.href+"?2="+codigoAvion;
+function queryAsiento(codigoAvion, codigoVuelo){
+	selectedAvion = [codigoAvion, codigoVuelo];
+	var URL =  window.location.protocol+window.location.host+"?2="+codigoAvion.toString();
 	var xhr = new XMLHttpRequest();
-	xhr.addEventListener("load", responseListener);
+	xhr.addEventListener("load", responseListener2);
+	xhr.open("GET", URL, true);
+	xhr.send(null);
+}
+
+function seleccionarAsiento(Fila, Columna){
+	selectedAsiento = [Fila, Columna];
+	var logDiv = document.getElementById("login");
+	logDiv.style.visibility = "visible";
+
+}
+
+function login(){
+	var user = document.getElementById("user").value;
+	usuario = user;
+	var password = document.getElementById("pass").value;
+	var URL = window.location.protocol+window.location.host+"LOG="+user+"+"+password;
+	var xhr = new XMLHttpRequest();
+	xhr.addEventListener("load", responseListener3);
+	xhr.open("GET", URL, true);
+	xhr.send(null);
+}
+
+function reservar(){
+	var tarjeta = document.getElementById("tarjeta").value;
+	var URL = window.location.protocol+window.location.host+"?3="+usuario+"+"+tarjeta+"+"+selectedAvion[0]+"+"+selectedAvion[1]+"+"+selectedAsiento[0]+"+"+selectedAsiento[1];
+	var xhr = new XMLHttpRequest();
+	xhr.addEventListener("load", responseListener4);
 	xhr.open("GET", URL, true);
 	xhr.send(null);
 }
@@ -81,7 +193,7 @@ function submitData(data){
   xhr.open("POST", window.location.href, true);
   xhr.setRequestHeader('Content-Type', 'application/json');
   xhr.send(JSON.stringify(data));
- }
+}
 
 //-->
 </script>
